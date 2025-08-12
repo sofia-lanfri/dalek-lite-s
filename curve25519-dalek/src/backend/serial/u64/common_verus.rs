@@ -84,6 +84,19 @@ pub broadcast proof fn shl_zero_is_id(v: u64)
     assert(v << 0 == v) by (bit_vector);
 }
 
+pub proof fn mul_5_terms(n: int, x1: int, x2: int, x3: int, x4: int, x5: int)
+    ensures
+        n * (x1 + x2 + x3 + x4 + x5) == n * x1 + n * x2 + n * x3 + n * x4 + n * x5
+{
+    // Apply distributivity to split the sum into (x1 + x2 + x3 + x4) + x5
+    lemma_mul_is_distributive_add(n, x1 + x2 + x3 + x4, x5);
+    // Then apply to (x1 + x2 + x3) + x4
+    lemma_mul_is_distributive_add(n, x1 + x2 + x3, x4);
+    // Then apply to (x1 + x2) + x3
+    lemma_mul_is_distributive_add(n, x1 + x2, x3);
+    // Finally apply to x1 + x2
+    lemma_mul_is_distributive_add(n, x1, x2);
+}
 // v << (a + b) == (v << a) << b
 pub proof fn shl_decomposition(v: u64, a: nat, b: nat)
     requires
