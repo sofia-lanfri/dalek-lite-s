@@ -119,6 +119,20 @@ pub proof fn lemma_boundaries(limbs: [u64; 5])
     // The solver can prove this automatically
 }
 
+pub proof fn mul_5_terms(n: int, x1: int, x2: int, x3: int, x4: int, x5: int)
+    ensures
+        n * (x1 + x2 + x3 + x4 + x5) == n * x1 + n * x2 + n * x3 + n * x4 + n * x5
+{
+    // Apply distributivity to split the sum into (x1 + x2 + x3 + x4) + x5
+    lemma_mul_is_distributive_add(n, x1 + x2 + x3 + x4, x5);
+    // Then apply to (x1 + x2 + x3) + x4
+    lemma_mul_is_distributive_add(n, x1 + x2 + x3, x4);
+    // Then apply to (x1 + x2) + x3
+    lemma_mul_is_distributive_add(n, x1 + x2, x3);
+    // Finally apply to x1 + x2
+    lemma_mul_is_distributive_add(n, x1, x2);
+}
+
 pub proof fn lemma_reduce(limbs: [u64; 5])
     ensures
         forall|i: int| 0 <= i < 5 ==> spec_reduce(limbs)[i] < (1u64 << 52),
