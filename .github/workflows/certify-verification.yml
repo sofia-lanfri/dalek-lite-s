@@ -1,0 +1,254 @@
+name: Certify Verification Results
+
+on:
+  workflow_dispatch:
+    inputs:
+      network:
+        description: 'Ethereum network for certification'
+        required: true
+        default: 'sepolia'
+        type: choice
+        options:
+          - sepolia
+          - mainnet
+          - both
+
+permissions:
+  contents: write  # Needed to push certifications.json to certifications-data branch
+
+jobs:
+  verify-and-certify:
+    name: Run Verification & Certify On-Chain
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ═══════════════════════════════════════════════════════════════
+      # STEP 1: Run Verus Verification
+      # ═══════════════════════════════════════════════════════════════
+      - name: Run Verus verification
+        uses: Beneficial-AI-Foundation/probe-verus/action@v1
+        id: verify
+        with:
+          project-path: ./curve25519-dalek
+          package: curve25519-dalek
+          output-dir: ./output
+
+      - name: Verification summary
+        env:
+          VERIFIED_COUNT: ${{ steps.verify.outputs.verified-count }}
+          TOTAL_FUNCTIONS: ${{ steps.verify.outputs.total-functions }}
+          VERUS_VERSION: ${{ steps.verify.outputs.verus-version }}
+          RUST_VERSION: ${{ steps.verify.outputs.rust-version }}
+        run: |
+          echo "## Verification Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Verified**: ${VERIFIED_COUNT} / ${TOTAL_FUNCTIONS}" >> $GITHUB_STEP_SUMMARY
+          if [ -n "$VERUS_VERSION" ]; then
+            echo "- **Verus**: ${VERUS_VERSION}" >> $GITHUB_STEP_SUMMARY
+          fi
+          if [ -n "$RUST_VERSION" ]; then
+            echo "- **Rust**: ${RUST_VERSION}" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Upload verification results artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: verification-results
+          path: ./output/results.json
+          retention-days: 90
+
+      # ═══════════════════════════════════════════════════════════════
+      # STEP 2: Certify on Ethereum Mainnet (via Gnosis Safe)
+      # ═══════════════════════════════════════════════════════════════
+      - name: Certify on Mainnet
+        id: certify_mainnet
+        if: inputs.network == 'mainnet' || inputs.network == 'both'
+        uses: Beneficial-AI-Foundation/eth_certify/action@main
+        continue-on-error: true
+        with:
+          source: ${{ steps.verify.outputs.results-file }}
+          description: "Dalek-Lite Verus Verification - Commit ${{ github.sha }}"
+          network: mainnet
+          rpc-url: ${{ secrets.MAINNET_RPC_URL }}
+          private-key: ${{ secrets.MAINNET_PRIVATE_KEY }}
+          certify-address: ${{ vars.MAINNET_CERTIFIER_ADDRESS }}
+          safe-address: ${{ vars.MAINNET_SAFE_ADDRESS }}
+          safe-execute: 'true'
+
+      # ═══════════════════════════════════════════════════════════════
+      # STEP 3: Certify on Sepolia (Testnet)
+      # ═══════════════════════════════════════════════════════════════
+      - name: Certify on Sepolia
+        id: certify_sepolia
+        if: inputs.network == 'sepolia' || inputs.network == 'both'
+        uses: Beneficial-AI-Foundation/eth_certify/action@main
+        continue-on-error: true
+        with:
+          source: ${{ steps.verify.outputs.results-file }}
+          description: "Dalek-Lite Verus Verification - Commit ${{ github.sha }}"
+          network: sepolia
+          rpc-url: ${{ secrets.SEPOLIA_RPC_URL }}
+          private-key: ${{ secrets.SEPOLIA_PRIVATE_KEY }}
+          certify-address: ${{ vars.SEPOLIA_CERTIFIER_ADDRESS }}
+          etherscan-api-key: ${{ secrets.ETHERSCAN_API_KEY }}
+
+      # ═══════════════════════════════════════════════════════════════
+      # STEP 4: Validate & Update Certifications History
+      # ═══════════════════════════════════════════════════════════════
+      - name: Validate certification succeeded
+        env:
+          NETWORK: ${{ inputs.network }}
+          MAINNET_TX_HASH: ${{ steps.certify_mainnet.outputs.tx-hash }}
+          SEPOLIA_TX_HASH: ${{ steps.certify_sepolia.outputs.tx-hash }}
+        run: |
+          echo "=== Certification Results (network: $NETWORK) ==="
+          
+          FAILED=false
+          
+          if [ "$NETWORK" = "mainnet" ] || [ "$NETWORK" = "both" ]; then
+            echo "Mainnet TX: ${MAINNET_TX_HASH:-'(none)'}"
+            if [ -z "$MAINNET_TX_HASH" ]; then
+              echo "::warning::Mainnet certification failed"
+              FAILED=true
+            fi
+          fi
+          
+          if [ "$NETWORK" = "sepolia" ] || [ "$NETWORK" = "both" ]; then
+            echo "Sepolia TX: ${SEPOLIA_TX_HASH:-'(none)'}"
+            if [ -z "$SEPOLIA_TX_HASH" ]; then
+              echo "::warning::Sepolia certification failed"
+              FAILED=true
+            fi
+          fi
+          
+          # For single network, fail if that network failed
+          # For both, fail only if both failed
+          if [ "$NETWORK" = "both" ]; then
+            if [ -z "$MAINNET_TX_HASH" ] && [ -z "$SEPOLIA_TX_HASH" ]; then
+              echo "::error::Both Mainnet and Sepolia certifications failed."
+              exit 1
+            fi
+          else
+            if [ "$FAILED" = "true" ]; then
+              echo "::error::Certification on $NETWORK failed."
+              exit 1
+            fi
+          fi
+          
+          echo ""
+          echo "✅ Certification succeeded"
+
+      - name: Update certifications.json
+        env:
+          MAINNET_TX_HASH: ${{ steps.certify_mainnet.outputs.tx-hash }}
+          MAINNET_ETHERSCAN_URL: ${{ steps.certify_mainnet.outputs.etherscan-url }}
+          MAINNET_CONTENT_HASH: ${{ steps.certify_mainnet.outputs.content-hash }}
+          SEPOLIA_TX_HASH: ${{ steps.certify_sepolia.outputs.tx-hash }}
+          SEPOLIA_ETHERSCAN_URL: ${{ steps.certify_sepolia.outputs.etherscan-url }}
+          SEPOLIA_CONTENT_HASH: ${{ steps.certify_sepolia.outputs.content-hash }}
+          VERIFIED_COUNT: ${{ steps.verify.outputs.verified-count }}
+          TOTAL_FUNCTIONS: ${{ steps.verify.outputs.total-functions }}
+          VERUS_VERSION: ${{ steps.verify.outputs.verus-version }}
+          RUST_VERSION: ${{ steps.verify.outputs.rust-version }}
+        run: |
+          # Build artifact URL
+          ARTIFACT_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          
+          # Use Mainnet content hash if available, otherwise fall back to Sepolia
+          CONTENT_HASH="${MAINNET_CONTENT_HASH:-$SEPOLIA_CONTENT_HASH}"
+          
+          # Create new certification entry
+          NEW_ENTRY=$(jq -n \
+            --arg timestamp "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            --arg commit_sha "${{ github.sha }}" \
+            --arg commit_short "$(echo '${{ github.sha }}' | cut -c1-7)" \
+            --arg artifact_url "$ARTIFACT_URL" \
+            --arg content_hash "${CONTENT_HASH:-}" \
+            --arg mainnet_tx "${MAINNET_TX_HASH:-}" \
+            --arg mainnet_etherscan "${MAINNET_ETHERSCAN_URL:-}" \
+            --arg sepolia_tx "${SEPOLIA_TX_HASH:-}" \
+            --arg sepolia_etherscan "${SEPOLIA_ETHERSCAN_URL:-}" \
+            --arg verus_version "${VERUS_VERSION:-}" \
+            --arg rust_version "${RUST_VERSION:-}" \
+            --argjson verified_count "${VERIFIED_COUNT:-0}" \
+            --argjson total_functions "${TOTAL_FUNCTIONS:-0}" \
+            '{
+              timestamp: $timestamp,
+              commit_sha: $commit_sha,
+              commit_short: $commit_short,
+              artifact_url: $artifact_url,
+              content_hash: $content_hash,
+              mainnet_tx: $mainnet_tx,
+              mainnet_etherscan: $mainnet_etherscan,
+              sepolia_tx: $sepolia_tx,
+              sepolia_etherscan: $sepolia_etherscan,
+              verus_version: $verus_version,
+              rust_version: $rust_version,
+              verified_count: $verified_count,
+              total_functions: $total_functions
+            }')
+          
+          # Update or create certifications.json
+          CERT_FILE="docs/certifications.json"
+          if [ -f "$CERT_FILE" ]; then
+            jq --argjson new "$NEW_ENTRY" '.certifications = [$new] + .certifications' "$CERT_FILE" > tmp.json
+            mv tmp.json "$CERT_FILE"
+          else
+            mkdir -p docs
+            jq -n --argjson entry "$NEW_ENTRY" '{ certifications: [$entry] }' > "$CERT_FILE"
+          fi
+          
+          echo "=== Updated certifications.json ==="
+          cat "$CERT_FILE" | jq '.'
+
+      - name: Push certifications.json to data branch
+        env:
+          MAINNET_TX_HASH: ${{ steps.certify_mainnet.outputs.tx-hash }}
+          SEPOLIA_TX_HASH: ${{ steps.certify_sepolia.outputs.tx-hash }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # Save the updated certifications.json before switching branches
+          cp docs/certifications.json /tmp/certifications.json
+          
+          # Checkout the certifications-data branch
+          # Use -f to discard local changes (we've already saved what we need to /tmp)
+          git fetch origin certifications-data
+          git checkout -f certifications-data
+          
+          # Copy the updated certifications.json
+          cp /tmp/certifications.json certifications.json
+          git add certifications.json
+          
+          if git diff --cached --quiet; then
+            echo "::warning::No changes to certifications.json"
+          else
+            TX_REF="${MAINNET_TX_HASH:-$SEPOLIA_TX_HASH}"
+            git commit -m "chore: update certifications.json with tx ${TX_REF}"
+            git push origin certifications-data
+            echo "✅ Pushed certifications.json to certifications-data branch"
+          fi
+
+      - name: Final summary
+        env:
+          MAINNET_TX_HASH: ${{ steps.certify_mainnet.outputs.tx-hash }}
+          MAINNET_ETHERSCAN_URL: ${{ steps.certify_mainnet.outputs.etherscan-url }}
+          SEPOLIA_TX_HASH: ${{ steps.certify_sepolia.outputs.tx-hash }}
+          SEPOLIA_ETHERSCAN_URL: ${{ steps.certify_sepolia.outputs.etherscan-url }}
+        run: |
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## Certification Complete" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ -n "$MAINNET_TX_HASH" ]; then
+            echo "**Mainnet**: [${MAINNET_TX_HASH}](${MAINNET_ETHERSCAN_URL})" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [ -n "$SEPOLIA_TX_HASH" ]; then
+            echo "**Sepolia**: [${SEPOLIA_TX_HASH}](${SEPOLIA_ETHERSCAN_URL})" >> $GITHUB_STEP_SUMMARY
+          fi
