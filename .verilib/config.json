@@ -1,3 +1,8 @@
 {
-  "structure-root": ".verilib/structure"
+  "structure-root": ".verilib/structure",
+  "repo": {
+    "id": "test-dalek-lite-s",
+    "url": "https://github.com/sofia-lanfri/dalek-lite-s.git",
+    "branch": "main"
+  }
 }
