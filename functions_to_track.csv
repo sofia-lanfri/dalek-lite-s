@@ -8,9 +8,6 @@ MontgomeryPoint::mul_clamped([u8; 32]),curve25519_dalek::montgomery,MontgomeryPo
 MontgomeryPoint::mul_base_clamped([u8; 32]),curve25519_dalek::montgomery,MontgomeryPoint
 MontgomeryPoint::mul_bits_be(impl Iterator<Item = bool>),curve25519_dalek::montgomery,MontgomeryPoint
 MontgomeryPoint::as_bytes(&self),curve25519_dalek::montgomery,MontgomeryPoint
-MontgomeryPoint::to_bytes(&self),curve25519_dalek::montgomery,MontgomeryPoint
-MontgomeryPoint::to_edwards(u8),curve25519_dalek::montgomery,MontgomeryPoint
-elligator_encode(&FieldElement),curve25519_dalek::montgomery,
 ProjectivePoint::identity(),curve25519_dalek::montgomery,Identity for ProjectivePoint
 ProjectivePoint::as_affine(&self),curve25519_dalek::montgomery,ProjectivePoint
 "differential_add_and_double(&ProjectivePoint, &ProjectivePoint, &FieldElement)",curve25519_dalek::montgomery,
@@ -149,3 +146,4 @@ RistrettoPoint::mul_base(&Scalar),curve25519_dalek::ristretto,RistrettoPoint
 RistrettoBasepointTable::mul(&Scalar),curve25519_dalek::ristretto,Mul<&'b Scalar> for &RistrettoBasepointTable
 Scalar::mul(&RistrettoBasepointTable),curve25519_dalek::ristretto,Mul<&'a RistrettoBasepointTable> for &Scalar
 RistrettoBasepointTable::create(&RistrettoPoint),curve25519_dalek::ristretto,RistrettoBasepointTable
+
