@@ -13,7 +13,6 @@ ProjectivePoint::as_affine(&self),curve25519_dalek::montgomery,ProjectivePoint
 "differential_add_and_double(&ProjectivePoint, &ProjectivePoint, &FieldElement)",curve25519_dalek::montgomery,
 MontgomeryPoint::mul(&Scalar),curve25519_dalek::montgomery,Mul<&Scalar> for &MontgomeryPoint
 MontgomeryPoint::mul_assign(&Scalar),curve25519_dalek::montgomery,MulAssign<&Scalar> for MontgomeryPoint
-Scalar::mul(&MontgomeryPoint),curve25519_dalek::montgomery,Mul<&MontgomeryPoint> for &Scalar
 Scalar::from_bytes_mod_order([u8; 32]),curve25519_dalek::scalar,Scalar
 Scalar::from_bytes_mod_order_wide(&[u8; 64]),curve25519_dalek::scalar,Scalar
 Scalar::from_canonical_bytes([u8; 32]),curve25519_dalek::scalar,Scalar
@@ -146,4 +145,5 @@ RistrettoPoint::mul_base(&Scalar),curve25519_dalek::ristretto,RistrettoPoint
 RistrettoBasepointTable::mul(&Scalar),curve25519_dalek::ristretto,Mul<&'b Scalar> for &RistrettoBasepointTable
 Scalar::mul(&RistrettoBasepointTable),curve25519_dalek::ristretto,Mul<&'a RistrettoBasepointTable> for &Scalar
 RistrettoBasepointTable::create(&RistrettoPoint),curve25519_dalek::ristretto,RistrettoBasepointTable
+
 
