@@ -1,7 +1,7 @@
 {
   "repo": {
     "id": "3103",
-    "url": "https://verilib.org",
-    "is_admin": true
+    "is_admin": true,
+    "url": "http://ec2-3-133-125-4.us-east-2.compute.amazonaws.com"
   }
 }
