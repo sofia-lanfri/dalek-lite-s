@@ -1,9 +1,9 @@
 {
-  "api-endpoint": "http://ec2-3-23-60-0.us-east-2.compute.amazonaws.com",
+  "api-endpoint": "http://ec2-3-133-125-4.us-east-2.compute.amazonaws.com",
   "structure-root": ".verilib/structure",
   "repo": {
-    "id": "4382",
+    "id": "3104",
     "is_admin": true,
-    "url": "http://ec2-3-23-60-0.us-east-2.compute.amazonaws.com"
+    "url": "http://ec2-3-133-125-4.us-east-2.compute.amazonaws.com"
   }
 }
