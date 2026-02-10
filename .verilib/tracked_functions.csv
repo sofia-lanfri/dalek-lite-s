@@ -2,10 +2,6 @@ function,module,link,has_spec,has_proof
 MontgomeryPoint::ct_eq(&MontgomeryPoint),curve25519_dalek::montgomery,https://github.com/Beneficial-AI-Foundation/dalek-lite/blob/main/curve25519-dalek/src/montgomery.rs#L116,yes,
 MontgomeryPoint::hash(&H),curve25519_dalek::montgomery,https://github.com/Beneficial-AI-Foundation/dalek-lite/blob/main/curve25519-dalek/src/montgomery.rs#L185,yes,
 MontgomeryPoint::identity(),curve25519_dalek::montgomery,https://github.com/Beneficial-AI-Foundation/dalek-lite/blob/main/curve25519-dalek/src/montgomery.rs#L215,yes,
-MontgomeryPoint::zeroize(&self),curve25519_dalek::montgomery,https://github.com/Beneficial-AI-Foundation/dalek-lite/blob/main/curve25519-dalek/src/montgomery.rs#L239,yes,yes
-MontgomeryPoint::mul_base(&Scalar),curve25519_dalek::montgomery,https://github.com/Beneficial-AI-Foundation/dalek-lite/blob/main/curve25519-dalek/src/montgomery.rs#L259,yes,
-MontgomeryPoint::mul_clamped([u8; 32]),curve25519_dalek::montgomery,https://github.com/Beneficial-AI-Foundation/dalek-lite/blob/main/curve25519-dalek/src/montgomery.rs#L293,yes,
-MontgomeryPoint::mul_base_clamped([u8; 32]),curve25519_dalek::montgomery,https://github.com/Beneficial-AI-Foundation/dalek-lite/blob/main/curve25519-dalek/src/montgomery.rs#L331,,
 MontgomeryPoint::mul_bits_be(impl Iterator<Item = bool>),curve25519_dalek::montgomery,https://github.com/Beneficial-AI-Foundation/dalek-lite/blob/main/curve25519-dalek/src/montgomery.rs#L401,yes,
 MontgomeryPoint::as_bytes(&self),curve25519_dalek::montgomery,https://github.com/Beneficial-AI-Foundation/dalek-lite/blob/main/curve25519-dalek/src/montgomery.rs#L468,yes,yes
 MontgomeryPoint::to_bytes(&self),curve25519_dalek::montgomery,https://github.com/Beneficial-AI-Foundation/dalek-lite/blob/main/curve25519-dalek/src/montgomery.rs#L476,yes,yes
@@ -222,3 +218,4 @@ EdwardsBasepointTable::basepoint(&self),curve25519_dalek::edwards,https://github
 Scalar::sum(I),curve25519_dalek::scalar,https://github.com/Beneficial-AI-Foundation/dalek-lite/blob/main/curve25519-dalek/src/scalar.rs#L1059,yes,yes
 EdwardsPoint::sum(I),curve25519_dalek::edwards,https://github.com/Beneficial-AI-Foundation/dalek-lite/blob/main/curve25519-dalek/src/edwards.rs#L1986,yes,yes
 RistrettoPoint::sum(I),curve25519_dalek::ristretto,https://github.com/Beneficial-AI-Foundation/dalek-lite/blob/main/curve25519-dalek/src/ristretto.rs#L1686,yes,yes
+
