@@ -12,21 +12,6 @@ ProjectivePoint::identity(),curve25519_dalek::montgomery,Identity for Projective
 ProjectivePoint::as_affine(&self),curve25519_dalek::montgomery,ProjectivePoint
 "differential_add_and_double(&ProjectivePoint, &ProjectivePoint, &FieldElement)",curve25519_dalek::montgomery,
 MontgomeryPoint::mul_assign(&Scalar),curve25519_dalek::montgomery,MulAssign<&Scalar> for MontgomeryPoint
-Scalar::from_bytes_mod_order([u8; 32]),curve25519_dalek::scalar,Scalar
-Scalar::from_bytes_mod_order_wide(&[u8; 64]),curve25519_dalek::scalar,Scalar
-Scalar::from_canonical_bytes([u8; 32]),curve25519_dalek::scalar,Scalar
-Scalar::ct_eq(&Self),curve25519_dalek::scalar,ConstantTimeEq for Scalar
-Scalar::index(usize),curve25519_dalek::scalar,Index<usize> for Scalar
-Scalar::mul_assign(&Scalar),curve25519_dalek::scalar,MulAssign<&'b Scalar> for Scalar
-Scalar::mul(&Scalar),curve25519_dalek::scalar,Mul<&'b Scalar> for Scalar
-Scalar::add_assign(&Scalar),curve25519_dalek::scalar,AddAssign<&'b Scalar> for Scalar
-Scalar::add(&Scalar),curve25519_dalek::scalar,Add<&'b Scalar> for Scalar
-Scalar::sub_assign(&Scalar),curve25519_dalek::scalar,SubAssign<&'b Scalar> for Scalar
-Scalar::sub(&Scalar),curve25519_dalek::scalar,Sub<&'b Scalar> for Scalar
-Scalar::neg(self),curve25519_dalek::scalar,Neg for &Scalar
-Scalar::neg(self),curve25519_dalek::scalar,Neg for Scalar
-product(I),curve25519_dalek::scalar,
-Scalar::from(u8),curve25519_dalek::scalar,From<u8> for Scalar
 Scalar::from(u16),curve25519_dalek::scalar,From<u16> for Scalar
 Scalar::from(u32),curve25519_dalek::scalar,From<u32> for Scalar
 Scalar::from(u64),curve25519_dalek::scalar,From<u64> for Scalar
@@ -144,6 +129,7 @@ RistrettoPoint::mul_base(&Scalar),curve25519_dalek::ristretto,RistrettoPoint
 RistrettoBasepointTable::mul(&Scalar),curve25519_dalek::ristretto,Mul<&'b Scalar> for &RistrettoBasepointTable
 Scalar::mul(&RistrettoBasepointTable),curve25519_dalek::ristretto,Mul<&'a RistrettoBasepointTable> for &Scalar
 RistrettoBasepointTable::create(&RistrettoPoint),curve25519_dalek::ristretto,RistrettoBasepointTable
+
 
 
 
