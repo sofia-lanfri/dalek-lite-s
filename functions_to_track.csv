@@ -1,14 +1,4 @@
 function,module,impl_block
-MontgomeryPoint::ct_eq(&MontgomeryPoint),curve25519_dalek::montgomery,ConstantTimeEq for MontgomeryPoint
-MontgomeryPoint::hash(&H),curve25519_dalek::montgomery,Hash for MontgomeryPoint
-MontgomeryPoint::identity(),curve25519_dalek::montgomery,Identity for MontgomeryPoint
-MontgomeryPoint::zeroize(&self),curve25519_dalek::montgomery,Zeroize for MontgomeryPoint
-MontgomeryPoint::mul_base(&Scalar),curve25519_dalek::montgomery,MontgomeryPoint
-MontgomeryPoint::mul_clamped([u8; 32]),curve25519_dalek::montgomery,MontgomeryPoint
-MontgomeryPoint::mul_base_clamped([u8; 32]),curve25519_dalek::montgomery,MontgomeryPoint
-MontgomeryPoint::mul_bits_be(impl Iterator<Item = bool>),curve25519_dalek::montgomery,MontgomeryPoint
-MontgomeryPoint::as_bytes(&self),curve25519_dalek::montgomery,MontgomeryPoint
-ProjectivePoint::identity(),curve25519_dalek::montgomery,Identity for ProjectivePoint
 ProjectivePoint::as_affine(&self),curve25519_dalek::montgomery,ProjectivePoint
 "differential_add_and_double(&ProjectivePoint, &ProjectivePoint, &FieldElement)",curve25519_dalek::montgomery,
 MontgomeryPoint::mul_assign(&Scalar),curve25519_dalek::montgomery,MulAssign<&Scalar> for MontgomeryPoint
@@ -129,6 +119,7 @@ RistrettoPoint::mul_base(&Scalar),curve25519_dalek::ristretto,RistrettoPoint
 RistrettoBasepointTable::mul(&Scalar),curve25519_dalek::ristretto,Mul<&'b Scalar> for &RistrettoBasepointTable
 Scalar::mul(&RistrettoBasepointTable),curve25519_dalek::ristretto,Mul<&'a RistrettoBasepointTable> for &Scalar
 RistrettoBasepointTable::create(&RistrettoPoint),curve25519_dalek::ristretto,RistrettoBasepointTable
+
 
 
 
