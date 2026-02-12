@@ -4,7 +4,7 @@
 # dependencies = [
 #   "beartype",
 # ]
-# ///
+# /// CHANGED BY sofia Feb 12
 """
 Analyze Verus specs and proofs in curve25519-dalek source code.
 Updates the CSV to mark which functions have Verus specs and/or proofs.
